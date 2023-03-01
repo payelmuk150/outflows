@@ -64,6 +64,11 @@ def g2(x_th, y, z, w, T):
     return g200
 
 def initial_T(T):
+    fermion_ = fermion_func(T)
+    A = 2.0 + fermion_
+
+    rho = (T**3.0 / S_in) * A * 1e+8 / 1.055
+    rho_MeV = rho * 5.6095e+26 * (1.98e-11)**3.0
 
     # set R_nu ~ R_gain
     r_in = (R*1.0e+6)
@@ -72,9 +77,6 @@ def initial_T(T):
 
     GR_factor_angle = ((1.0 - (2.0 * GM / (r_nu_nat))) / (1.0 - (2.0 * GM / r_in_nat)))**0.5
     factor = 1.0 - (1.0 - ((r_nu_nat / r_in_nat)**2.0 / GR_factor_angle**2.0))**0.5
-
-    rho = (T**3.0 / S_in) * 5.21 * 1e+8 
-    rho_MeV = rho * 5.6e+26 * (1.97e-11)**3.0
     eta = 3.0 * 0.5 * (rho_MeV / m_n) / T**3.0
         
     qdot_cool_ann = (1.57e-25 * T**9.0 * 
@@ -83,7 +85,8 @@ def initial_T(T):
     return ((3.4e-24 * ((L_nuebar * e_nuebar**2.0 + L_nue * e_nue**2.0) * GR_factor_1**6.0 * (1.0e+6/r_in)**2) * factor * GR_factor_angle**6.0
             - 1.6e-24 * T**6.0) - qdot_cool_ann)
 
-initial_vs = [(1.88e+6 + 2 * 1e-4 * 1e+6 * i) for i in range(10)] 
+#initial_vs = [(1.88e+6 + 2 * 1e-4 * 1e+6 * i) for i in range(10)] 
+initial_vs = [(2.15e+6 + 2 * 1e-4 * 1e+6 * i) for i in range(10)] 
 mu = 0.511
 
 def fermion_func(x) :
@@ -132,9 +135,8 @@ for v_in in initial_vs:
 
     # mass outflow rate
     rho_start = 5.21 * T_in**3.0 * 1e+8 / S_in # g/cm^3
-    M_dot = 4.0 * np.pi * r_in**2.0 * rho_start * v_in / (2.0e+33 * GR_factor_1 ) # in solar masses
+    #M_dot = 4.0 * np.pi * r_in**2.0 * rho_start * v_in / (2.0e+33 * GR_factor_1 ) # in solar masses
     print ('Starting density', rho_start)
-    print('Mass outflow rate' , M_dot)
 
     print ('Initial speed (cm/s)', v_in)
     v_nat_in = v_in/(3.0e+10)
@@ -147,14 +149,26 @@ for v_in in initial_vs:
     T = T_in
     T1 = T_in
 
-    dr = 1.0e+4 # cm 
+    dr = 5.0e+2 # cm 
     dr_nat = dr * 5.0e+10
 
     vs = ((T_in * S_in / (4.0 * m_n)) * (4.0 + (T_in * derivative_A_term)) / (3.0 + (T_in * derivative_A_term)))**0.5
     print ('Initial sound speed (cm/s)', vs * 3e+10)
 
+    A = 2.0 + fermion
+    density8 = (T**3.0 / S) * A / 1.055
+    rho_MeV = density8 * 1e+8 * 5.6095e+26 * (1.98e-11)**3.0
+    rho = rho_MeV / (5.6095e+26 * (1.98e-11)**3.0)
+    y_fac_in = ((1.0 - (2.0 * GM / r)) / (1.0 - v**2 ))**0.5
+
+    M_dot = 4.0 * np.pi * (r / 5e+10)**2.0 * (rho / 2e+33) * (v * 3e+10) * y_fac_in
+    M_dot_list = [M_dot]
+    S_list = [S + 11 + np.log(T**1.5 / density8)]
+    T_list = [T_in * 11.604]
+    print('Mass outflow rate' , M_dot)
+
     # loop over for radii
-    for p in range (100000):
+    for p in range (1000000):
 
         fermion = fermion_func(T)
         A = 2.0 + fermion
@@ -162,8 +176,6 @@ for v_in in initial_vs:
         GR_factor = 1.0 / (1.0 - (2.0 * GM / r))
         GR_factor_angle = ((1.0 - (2.0 * GM / r_in_nat)) / (1.0 - (2.0 * GM / r)))**0.5
         y_fac = ((1.0 - (2.0 * GM / r)) / (1.0 - v**2))**0.5
-       
-        density8 = (T**3.0 / S) * A / 1.055
         X_n = 828 * T**(9.0 / 8) * np.exp(- 7.074 / T) / density8**(3.0 / 4.0)
 
         if X_n >= 1.0:
@@ -224,25 +236,34 @@ for v_in in initial_vs:
                 derivative_A_term = fermion_derivative 
 
                 beta = (1.0 / 4.0) * (1.0 + (3.0 + T * derivative_A_term)**-1)
-                dv = ((2 * vs**2 / r) - ((GM / r**2) * (1 - vs**2) * GR_factor) - (qdot * beta / (v * y_fac * (1 + 3 * vs**2)))) * dr_nat * (1.0 - v**2.0) / (v - (vs * vs / v))
+                vs = ((T * beta * S)/m_n)**0.5
+
+                dv = ((2 * vs**2 / r) - ((GM / r**2) * (1 - vs**2) * GR_factor) - (qdot * beta / (v * y_fac * (1 + ((T * S)/m_n) )))) * dr_nat * (1.0 - v**2.0) / (v - (vs * vs / v))
                 dS = (qdot * m_n / (T * v * y_fac)) * dr_nat
-                dvs = ((qdot * dr_nat / (v * y_fac * (1 + 3 * vs**2))) - (v * dv / (1 - v**2)) - (GM * GR_factor * dr_nat / r**2)) * (1 + 3 * vs**2) / (6 * vs)
+                dy_fac = (1 / (2.0*y_fac)) * ((1-v**2)*(2*GM/r**2)*dr_nat + (1 - (2*GM/r)) * 2*v*dv) / (1 - v**2)**2
+                drho_MeV = - ((2 * r * rho_MeV * v * dr_nat * y_fac) + (r**2 * rho_MeV * y_fac * dv) + (r**2 * rho_MeV * v * dy_fac)) / (r**2 * v * y_fac)
 
                 S = S + dS
                 r = r + dr_nat
                 v = v + dv
-                vs = vs + dvs
-
-                a = derivative_A_term 
-                b = 4 - ((4 * m_n * vs**2 / S) * derivative_A_term)
-                c = -12 * m_n * vs**2 / S
-
-                #T = (vs**2 * 4 * m_n / S) / (1.0 + (3.0 + T * derivative_A_term)**-1)
-                T = (-b + (b**2 - 4*a*c)**0.5) / (2 * a)
-
-                rho = (T**3.0 / S) * A * 1e+8 / 1.055
+                rho_MeV = rho_MeV + drho_MeV
+                rho = rho_MeV / (5.6095e+26 * (1.98e-11)**3.0)
+                density8 = rho / 1e+8
+                T = (rho * 1.055 * S / (A * 1e+8))**0.333333
                 dM = 4 * pi * rho * (r / 5.0e+10)**2.0 * (dr_nat / 5.0e+10)
                 M = M + dM
+                M_dot_ = 4.0 * np.pi * (r / 5e+10)**2.0 * (rho / 2e+33) * (v * 3e+10) * y_fac # in solar masses
+
+                eta = 3.0 * 0.5 * (rho_MeV / m_n) / T**3.0
+        
+                qdot_cool_ann = (1.57e-25 * T**9.0 * 
+                                (g1(m_e / T, eta, 0, 0, T) * g2(m_e / T, - eta, 0, 0, T) + g1(m_e / T, -eta, 0, 0, T) * g2(m_e / T,eta, 0, 0, T)) / rho_MeV)
+
+                factor = 1.0 - (1.0 - ((r_in_nat / r)**2.0 / GR_factor_angle**2.0))**0.5 # gravitational bending
+                qdot = ((3.4e-24 * ((L_nuebar * e_nuebar**2.0 + L_nue * e_nue**2.0) * GR_factor_1**6.0 * (1.0e+6 / r_in)**2 ) * factor * GR_factor_angle**6.0
+                    - 1.6e-24 * T**6.0) * fac - qdot_cool_ann)
+
+                M_dot_list.append(M_dot_)
 
 
         if(T < 0):
@@ -257,17 +278,9 @@ for v_in in initial_vs:
 
         v_list.append(v * 3e+10)
         r_list.append(r)
-
-        rho_8 = rho / 1e+8
-        rho_MeV = rho * 5.6e+26 * (1.97e-11)**3.0
-        eta = 3.0 * 0.5 * (rho_MeV / m_n) / T**3.0
-        
-        qdot_cool_ann = (1.57e-25 * T**9.0 * 
-                        (g1(m_e / T, eta, 0, 0, T) * g2(m_e / T, - eta, 0, 0, T) + g1(m_e / T, -eta, 0, 0, T) * g2(m_e / T,eta, 0, 0, T)) / rho_MeV)
-
-        factor = 1.0 - (1.0 - ((r_in_nat / r)**2.0 / GR_factor_angle**2.0))**0.5 # gravitational bending
-        qdot = ((3.4e-24 * ((L_nuebar * e_nuebar**2.0 + L_nue * e_nue**2.0) * GR_factor_1**6.0 * (1.0e+6 / r_in)**2 ) * factor * GR_factor_angle**6.0
-            - 1.6e-24 * T**6.0) * fac - qdot_cool_ann)
+        S_list.append(S + 11 + np.log(T**1.5 / density8))
+        T_list.append(T * 11.604)
+        #rho_MeV = rho * 5.6e+26 * (1.97e-11)**3.0
 
     P_calculation = (S * (T**3.0 / S) * A * 1e+8)**(4.0/3) # P propto (S rho)^4/3, ignorong the constant factors
     convergence_fraction = abs(P_calculation - P_target) / P_target
@@ -280,11 +293,20 @@ for v_in in initial_vs:
 
     f.close()
 
+    plt.loglog(np.array(r_list)[1:]/5e+10, M_dot_list[1:])
+    plt.show()
+
+    plt.loglog(np.array(r_list)/5e+10, S_list)
+    plt.show()
+
+    plt.loglog(np.array(r_list)/5e+10, T_list)
+    plt.show()
+
+    plt.loglog(np.array(r_list)/5e+10, v_list)
+    plt.show()
+
     if convergence_fraction < 0.1:
         break
-
-    plt.loglog(r_list, v_list)
-    plt.show()
 
 f = np.loadtxt('Alex_checks.txt')
 plt.loglog(f[:, 0], f[:, 1])
