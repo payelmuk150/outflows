@@ -269,7 +269,7 @@ for v_in in initial_vs:
         qdot = ((3.4e-24 * ((L_nuebar * e_nuebar**2.0 + L_nue * e_nue**2.0) * GR_factor_1**6.0 * (1.0e+6 / r_in)**2 ) * factor * GR_factor_angle**6.0
             - 1.6e-24 * T**6.0) * fac - qdot_cool_ann)
 
-    P_calculation = (S * (T**3.0 / S) * A * 1e+8)**(4/3) # P propto (S rho)^4/3, ignorong the constant factors
+    P_calculation = (S * (T**3.0 / S) * A * 1e+8)**(4.0/3) # P propto (S rho)^4/3, ignorong the constant factors
     convergence_fraction = abs(P_calculation - P_target) / P_target
 
     print('Calculated far boundary S: ', S)
