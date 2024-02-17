@@ -26,7 +26,7 @@ rho_target = (M_target / 1.98e+33 - pns_mass) * 1.98e+33 / (4 * np.pi * r_target
 print('Boundary rho', rho_target)
 
 # Boundary pressure
-P_target = (6 * rho_target)**(4/3) # P propto (S rho)^4/3, ignorong the constant factors
+P_target = (6 * rho_target)**(4.0/3) # P propto (S rho)^4/3, ignorong the constant factors
 print('Boundary pressure', P_target)
 
 GM=7.56395e+15 * pns_mass
@@ -301,7 +301,7 @@ plt.show()
 print('S', S)
 print('rho_f',(T**3.0/S)*A*1e+8 / 1.055)
 
-P_calculation = (S * (pow(T,3.0)/S)*A*1e+8 / 1.055)**(4/3) # P propto (S rho)^4/3, ignorong the constant factors
+P_calculation = (S * (pow(T,3.0)/S)*A*1e+8 / 1.055)**(4.0/3) # P propto (S rho)^4/3, ignorong the constant factors
 print('Calculated boundary pressure', P_calculation)
 
 
