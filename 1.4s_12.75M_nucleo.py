@@ -86,7 +86,7 @@ def initial_T(T):
             - 1.6e-24 * T**6.0) - qdot_cool_ann)
 
 #initial_vs = [(1.88e+6 + 2 * 1e-4 * 1e+6 * i) for i in range(10)] 
-initial_vs = [(2.15e+6 + 2 * 1e-4 * 1e+6 * i) for i in range(10)] 
+initial_vs = [(2.17e+6 + 2 * 1e-4 * 1e+6 * i) for i in range(10)] 
 mu = 0.511
 
 def fermion_func(x) :
@@ -149,7 +149,7 @@ for v_in in initial_vs:
     T = T_in
     T1 = T_in
 
-    dr = 5.0e+2 # cm 
+    dr = 1.0e+3 # cm 
     dr_nat = dr * 5.0e+10
 
     vs = ((T_in * S_in / (4.0 * m_n)) * (4.0 + (T_in * derivative_A_term)) / (3.0 + (T_in * derivative_A_term)))**0.5
@@ -309,12 +309,17 @@ for v_in in initial_vs:
         break
 
 f = np.loadtxt('Alex_checks.txt')
+
+plt.loglog(f[:, 0], f[:, 2] * 11.604)
+plt.ylim([1, 5])
+plt.xlim([0.05, 5])
+plt.show()
+
 plt.loglog(f[:, 0], f[:, 1])
 plt.show()
 plt.loglog(f[:, 1], f[:, 3])
 plt.show()
-plt.loglog(f[:, 1], f[:, 2])
-plt.show()
+
 
 plt.loglog(f[:, 1], np.gradient(f[:, 1], f[:, 0]) / 1e+5, label = 'speed')
 plt.loglog(f[:, 1], (10000) * f[:, 1] / 1e+9, label = 'Hubble' )
