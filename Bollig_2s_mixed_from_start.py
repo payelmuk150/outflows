@@ -287,7 +287,7 @@ for v_in in initial_vs:
     plt.loglog(r_list, v_list)
     plt.show()
 
-f = np.loadtxt('Bollig_unmixed.txt')
+f = np.loadtxt('Bollig_mixed_from_start.txt')
 plt.loglog(f[:, 0], f[:, 1])
 plt.show()
 plt.loglog(f[:, 1], f[:, 3])
