@@ -6,7 +6,7 @@ import mpmath as gp
 import matplotlib.pyplot as plt
 
 # target pressure from Sukhbold 12.75 M parameter
-f_target = np.genfromtxt('s12.75_presn', skip_header = 2)
+f_target = np.genfromtxt('s18.0_presn', skip_header = 2)
 r_target = 0
 M_target = 0
 Rs = 2.0e+9
@@ -31,12 +31,11 @@ P_target = (6 * rho_target)**(4.0/3) # P propto (S rho)^4/3, ignorong the consta
 print('Boundary pressure', P_target)
 
 GM=7.56395e+15 * pns_mass
-r_front = 3.0e+9
 
 # This is the radius of the termination shock. Needs to be tuned to match to the far pressure. 
 #Add additional loop to do this automatically. 
 # Although this tuning is not needed to high precision
-R_t = 1.5e+8
+R_t = 0.8e+8
 
 # neutrino parameters. Luminosities and energies.
 L_nue = 11.34
@@ -44,8 +43,8 @@ L_nuebar = 11.1 # 10^51 erg/s
 R = 1.7 # 19 km
 r_in= R * 1.0e+6 
 
-e_nue = 18.9042    # 13.08, sqrt(<E^3>/<E>), ,<E>_nue = Hudepohl_9.7MeV_1sec
-e_nuebar = 20.1877 # 16.23, sqrt(<E^3>/<E>), ,<E>_nuebar = Hudepohl_11.7MeV_1sec
+e_nue = 21.0594    # 13.08, sqrt(<E^3>/<E>), ,<E>_nue = Hudepohl_9.7MeV_1sec
+e_nuebar = 22.3347 # 16.23, sqrt(<E^3>/<E>), ,<E>_nuebar = Hudepohl_11.7MeV_1sec
 
 # Initial entropy 
 S_in= 6.0
@@ -87,7 +86,7 @@ def initial_T(T, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=e_nuebar)
             - 1.6e-24 * T**6.0) - qdot_cool_ann)
 
 #initial_vs = [9.3394e+6]
-initial_vs = [9.34e+6]
+initial_vs = [11.96e+6]
 mu = 0.511
 
 def fermion_func(x):
@@ -217,17 +216,38 @@ for v_in in initial_vs:
                 # Mach number
                 m = v / vs
 
-                if (m < 0.95 or m > 1.02):
+                if (m < 0.98 or m > 1.002):
                     dv = ((2 * vs**2 / r) - ((GM / r**2) * (1 - vs**2) * GR_factor) - (qdot * beta / (v * y_fac * (1 + 3 * vs**2)))) * dr_nat * (1.0 - v**2.0) / (v - (vs * vs / v))
-                    dv_temp = dv
-                    #print('dv_temp', dv_temp * 3e+10)
-                else: 
-                    dv = (((GM * (1 - vs**2) / r**3) - (vs**2 / r**2)) * (1 - vs**2))**0.5 * dr_nat
+                    dvs = ((qdot * dr_nat / (v * y_fac * (1 + 3 * vs**2))) - (v * dv / (1 - v**2)) - (GM * GR_factor * dr_nat / r**2)) * (1 + 3 * vs**2) / (6 * vs)
+
                     #print('dv', dv * 3e+10)
+                else: 
+                    #dv = (((GM * (1 - vs**2) / r**3) - (vs**2 / r**2)) * (1 - vs**2))**0.5 * dr_nat
+                    #print('dv approx', dv * 3e+10)
+
+                    def dvs_dr(x, vs=vs, r=r): # we want to solve for dv_dr for L'Hospital Rule
+                        return -((vs / (1-vs**2)) * x + GM/r**2) * (1 + 3 * vs**2) / (6 * vs)
+
+                    def dN_dr(x, vs=vs, r=r): # Numerator derivative
+                        return (-(2*vs**2/r**2) + (2*GM*(1-vs**2)/r**3)) + ((4*vs/r) + (2*GM*vs/r**2))*dvs_dr(x)
+
+                    def dD_dr(x, vs=vs, r=r): # Denominator derivative
+                        return (2/(1-vs**2)) * (x - dvs_dr(x))
+
+                    def dv_dr_sonic(x, vs=vs, r=r):
+                        return x - (dN_dr(x)/dD_dr(x)) # L'Hospital rule where we take derivative of numerator and denom
+
+                    guess = 1e-5 / dr_nat
+                    dvdr = sc.optimize.fsolve(dv_dr_sonic, guess)[0]
+
+                    dv = dvdr * dr_nat
+
+                    dvs = dvs_dr(dvdr, vs=vs, r=r) * dr_nat
+
+                    #print('dv_iter', dv * 3e+10)
                     #break
 
                 dS = (qdot * m_n / (T * v * y_fac)) * dr_nat
-                dvs = ((qdot * dr_nat / (v * y_fac * (1 + 3 * vs**2))) - (v * dv / (1 - v**2)) - (GM * GR_factor * dr_nat / r**2)) * (1 + 3 * vs**2) / (6 * vs)
                 #print('dvs', dvs * 3e+10)
                 S = S + dS
                 r = r + dr_nat
