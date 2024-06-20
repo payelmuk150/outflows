@@ -301,6 +301,11 @@ for v_in in initial_vs:
             fermion = fermion_func(T)
             A = 2.0 + fermion
 
+            diff_T = 0.0001
+            fermion_dT = fermion_func(T + diff_T)
+            fermion_derivative = (fermion_dT - fermion) / ( diff_T * A)
+            derivative_A_term = fermion_derivative 
+
             S = (T**3.0 / rho) * A * 1e+8 / 1.055
             print('Entropy after Shock', S)
 
@@ -315,12 +320,6 @@ for v_in in initial_vs:
         if(r / 5.0e+10 > R_t):
 
             if T : 
-                fermion = fermion_func(T)
-                A = 2.0 + fermion
-                diff_T = 0.0001
-                fermion_dT = fermion_func(T + diff_T)
-                fermion_derivative = (fermion_dT - fermion) / ( diff_T * A)
-                derivative_A_term = fermion_derivative 
 
                 beta = (1.0 / 4.0) * (1.0 + (3.0 + T * derivative_A_term)**-1)
 
