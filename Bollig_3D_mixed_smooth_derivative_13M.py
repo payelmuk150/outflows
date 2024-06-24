@@ -312,7 +312,7 @@ id_max_mach = np.argmax(np.array(v_list))
 # assume the transition from part A to part B happens across 15km radius range. Checked against plots of the near critical flow
 subtract_id = int(15 / (dr / 1e+5))
 print(subtract_id, 'id to subtract')
-left_to_max_id = id_max_mach - 100
+left_to_max_id = id_max_mach - subtract_id
 print('left_to_max_id', left_to_max_id)
 
 
