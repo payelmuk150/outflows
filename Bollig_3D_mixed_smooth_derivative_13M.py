@@ -285,7 +285,7 @@ while True:
     if max(mach) > 1: 
         vmax = v_in
         v_in = (vmin + vmax) / 2
-    elif max(mach) < 1 and max(mach) > 0.97: 
+    elif max(mach) < 1 and max(mach) > 0.99: 
         break 
     else: 
         vmin = v_in
@@ -480,13 +480,17 @@ for v_in in v_in_crit:
                 S1 = S
                 T1 = T
                 
-                v = (m * m + 6.0) * v / (7.0 * m * m)
 
-                jump = (m * m + 6.0) / (7.0 * m * m)
+                #jump = (m * m + 6.0) / (7.0 * m * m)
 
-                print('jump', 1 / jump)
+                jump1 = (2*T1*S1 + m_n*v1**2) / (7 * m_n * v1**2)
 
-                rho = (7.0 * m * m) * rho / (m * m + 6.0)
+                #print('jump', 1 / jump)
+                print(1 / jump1)
+
+                v = v * jump1 
+
+                rho = rho / jump1
 
                 print('Density after jump', rho)
                 print('Speed after jump', v * 3e+10)
