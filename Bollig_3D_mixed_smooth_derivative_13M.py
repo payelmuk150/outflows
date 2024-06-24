@@ -38,7 +38,7 @@ GM=7.56395e+15 * pns_mass
 
 R_t = 0.6e+13
 
-# neutrino parameters. Luminosities and energies.
+# Mixed neutrino parameters. Luminosities and energies.
 L_nue = 11.34
 L_nuebar = 11.1 # 10^51 erg/s
 R = 1.7 # 19 km
@@ -46,6 +46,8 @@ r_in= R * 1.0e+6
 
 e_nue = 21.0594    # 13.08, sqrt(<E^3>/<E>), ,<E>_nue = Hudepohl_9.7MeV_1sec
 e_nuebar = 22.3347 # 16.23, sqrt(<E^3>/<E>), ,<E>_nuebar = Hudepohl_11.7MeV_1sec
+
+
 
 # Initial entropy 
 S_in= 6.0
@@ -318,7 +320,7 @@ id_crit = 0
 v_in_crit = [v_in] 
 
 # Termination Shock Radius
-shoot_TS = [0.3e+8 + (0.1e+8)*i for i in range(10)]
+shoot_TS = [r_list[id_max_mach] * 1.2 / 5e+10 + (0.1e+8)*i for i in range(5)]
 
 
 for v_in in v_in_crit:
@@ -391,6 +393,7 @@ for v_in in v_in_crit:
         print ('Initial sound speed (cm/s)', vs * 3e+10)
 
         # loop over for radii
+        shocked = False
         for p in range (100000):
 
             fermion = fermion_func(T)
@@ -461,7 +464,8 @@ for v_in in v_in_crit:
                     dM = 4 * pi * rho * (r / 5.0e+10)**2.0 * (dr_nat / 5.0e+10)
                     M = M + dM
 
-            if(r / 5.0e+10 == R_t):
+            elif(r / 5.0e+10 >= R_t and shocked==False):
+                shocked = True
 
                 print(f'Termination shock at {r / (5.0e+10 * 1e+5)} km')
                 print('Entropy before TS',S)
@@ -514,7 +518,7 @@ for v_in in v_in_crit:
 
                 f.write(f'{t} {r / 5.0e+10} {T} {rho}\n')
 
-            if(r / 5.0e+10 > R_t):
+            else:
 
                 if T : 
 
