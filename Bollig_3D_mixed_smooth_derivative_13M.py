@@ -93,7 +93,7 @@ def initial_T(T, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=e_nuebar)
 #initial_vs = [ (11.9e+6 + 1e-2 * 1e+6 * i) for i in range(20) ]
 
 # Range for the mixed 3D Bollig
-vmin = 11.9e+6
+vmin = 11.0e+6
 vmax = 12.0e+6
 
 # Range for the unmixed 3D Bollig
