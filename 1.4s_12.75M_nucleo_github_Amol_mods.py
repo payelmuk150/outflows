@@ -243,7 +243,7 @@ while viter < 30:
 #for v_in in initial_vs:
 	viter += 1
 
-#	f = open('Alex_checks_Amol.txt' ,'w')
+#	f = open('Nucleo_Amol.txt' ,'w')
 	z = z_s
 
 	# initial time
@@ -454,7 +454,7 @@ if viter == 30:
 	
 ###################################### Run another iteration, but with a long jump over the sonic point #######################
 
-#	f = open('Alex_checks_Amol.txt' ,'w')
+#	f = open('Nucleo_Amol.txt' ,'w')
 	z = z_s
 
 	# initial time
@@ -818,7 +818,7 @@ if viter < 30:
 	f.close()
 
 
-	f = open('Alex_checks_Amol_'+strprog+strlum+'.txt' ,'w')
+	f = open('Nucleo_Amol_'+strprog+strlum+'.txt' ,'w')
 	for i in range(len(t_list)):
 		vexp_list.append(vexp(r_list[i]))
 		f.write(f'{t_list[i]} {r_list[i]} {T_list[i]} {rho_list[i]} {v_list[i]}\n')
@@ -863,7 +863,7 @@ else:
 		f.write(f'{r2_list[i]} {T2_list[i]} {S2_list[i]} {v2_list[i]} {vs2_list[i]} {Tferr2_list[i]}\n')
 	f.close()
 	
-	f = open('Alex_checks_Amol_'+strprog+strlum+'.txt' ,'w')
+	f = open('Nucleo_Amol_'+strprog+strlum+'.txt' ,'w')
 	for i in range(idxRt):
 		vexp_list.append(vexp(r_list[i]))
 		f.write(f'{t_list[i]} {r_list[i]} {T_list[i]} {rho_list[i]} {v_list[i]}\n')
