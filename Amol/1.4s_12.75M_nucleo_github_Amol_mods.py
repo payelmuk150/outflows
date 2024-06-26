@@ -63,7 +63,7 @@ print('# Boundary rho', rho_target)
 P_target = (Sbr_ps * rho_target / 1.055)**(4.0/3.0)		# P propto (S rho)^4/3, ignoring the constant factors
 print('# Boundary pressure (target)', P_target)
 # Amol: more accurate expression with constant factors given below:
-#P_target = (1.0/4.0)*(45/(2*pi**2*g_ps))**(1.0/3.0)
+#P_target = (1.0/4.0)*(45/(2*pi**2*g_ps))**(1.0/3.0) (Sbr_ps * rho_target_in_nat)^4
 # Also, shouldn't rho be converted to natural units before using P \approx (S rho)^(4/3)?
 
 
