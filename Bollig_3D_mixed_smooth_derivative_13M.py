@@ -321,6 +321,7 @@ v_in_crit = [v_in]
 
 # Termination Shock Radius
 shoot_TS = [r_list[id_max_mach] * 1.2 / 5e+10 + (0.1e+8)*i for i in range(5)]
+shoot_TS = [0.7e+8]
 
 
 for v_in in v_in_crit:
