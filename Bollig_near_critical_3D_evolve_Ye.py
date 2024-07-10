@@ -77,9 +77,6 @@ S_in= 6.0
 m_n = 939.57
 m_e = 0.511
 
-# Initial Y_e 
-Ye = 0.5
-
 def g1(x_th, y, z, w, T):
     x = np.arange(x_th, x_th + 20, 0.1)
     integrand_100 = x**2 * np.sqrt(np.abs(x**2 - x_th**2)) / (np.exp(x + y) + 1)
@@ -93,6 +90,8 @@ def g2(x_th, y, z, w, T):
     return g200
 
 def initial_T(T, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=e_nuebar):
+
+    Ye = initial_Ye(T)
 
     # set R_nu ~ R_gain
     r_in = (R*1.0e+6)
@@ -117,13 +116,13 @@ def initial_T(T, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=e_nuebar)
 
 #initial_vs = [ (11.9e+6 + 1e-2 * 1e+6 * i) for i in range(20) ]
 
-# Range for the mixed 3D Bollig
-vmin = 11.0e+6
-vmax = 12.0e+6
+# Range for the mixed 3D Bollig with Ye evol
+vmin = 12.0e+6
+vmax = 13.0e+6
 
-# Range for the unmixed 3D Bollig
+# Range for the unmixed 3D Bollig with Ye evol
 #vmin = 8.5e+6
-#vmax = 9.5e+6
+#vmax = 10.5e+6
 
 v_in = vmin
 
@@ -177,10 +176,6 @@ while True:
     GR_factor_1 = np.sqrt(1.0 / (1.0 - (2.0 * GM / r)))
     print('GR_factor', GR_factor_1)
 
-    # Initial temperature
-    T_in = sc.optimize.fsolve(initial_T, 4.0)[0]
-    print('T_in',T_in)
-
     def lam_nue_n(x, GR_factor_1=GR_factor_1):
         alpha = 1.26
         GF = 1.166e-11 # MeV^-2
@@ -188,9 +183,9 @@ while True:
         sec_to_MeVinv = 6.58e-22
         erg_toMeV = 6.24e+2 * 1e+3
 
-        L_eff = L_nue * GR_factor_1**2 * 1e+51 * erg_toMeV * sec_to_MeVinv
-        e_eff = eps_nue * GR_factor_1**2
-        eavg_eff = eavg_nue * GR_factor_1**2
+        L_eff = L_nue * GR_factor_1**4 * 1e+51 * erg_toMeV * sec_to_MeVinv
+        e_eff = eps_nue * GR_factor_1
+        eavg_eff = eavg_nue * GR_factor_1
 
         return ((1 + 3*alpha**2) / (2 * np.pi**2)) * GF**2 * (L_eff/r_in_nat**2) * (e_eff + 2*delta + delta**2/eavg_eff) * (1 - x) 
 
@@ -201,9 +196,9 @@ while True:
         sec_to_MeVinv = 6.58e-22
         erg_toMeV = 6.24e+2 * 1e+3
 
-        L_eff = L_nuebar * GR_factor_1**2 * 1e+51 * erg_toMeV * sec_to_MeVinv
-        e_eff = eps_nuebar * GR_factor_1**2
-        eavg_eff = eavg_nuebar * GR_factor_1**2
+        L_eff = L_nuebar * GR_factor_1**4 * 1e+51 * erg_toMeV * sec_to_MeVinv
+        e_eff = eps_nuebar * GR_factor_1
+        eavg_eff = eavg_nuebar * GR_factor_1
 
         return ((1 + 3*alpha**2) / (2 * np.pi**2)) * GF**2 * (L_eff/r_in_nat**2) * (e_eff - 2*delta + delta**2/eavg_eff) * (1 - x) 
 
@@ -211,16 +206,21 @@ while True:
         sec_to_MeVinv = 6.58e-22
         return 0.448 * T**5 * sec_to_MeVinv
 
-    def initial_Ye(r, T=T_in):
-        x = np.sqrt(1 - (r_in_nat**2/r**2))
+    def initial_Ye(T):
+        x = np.sqrt(1 - (r_in_nat**2/r_in_nat**2))
         lam1 = lam_nue_n(x) + other_lam(T)
         lam2 = lam1 + lam_nuebar_p(x) + other_lam(T)
-        print(lam1)
-        print(lam2)
+        #print(lam1)
+        #print(lam2)
         return lam1/lam2
 
-    Ye = initial_Ye(r_in_nat, T=T_in)
+    # Initial temperature
+    T_in = sc.optimize.fsolve(initial_T, 4.0)[0]
+    print('T_in',T_in)
+
+    Ye = initial_Ye(T=T_in)
     Ye_list = [Ye]
+
 
     print('Initial Ye', Ye)
 
@@ -250,7 +250,7 @@ while True:
 
     T = T_in
 
-    dr = 1.0e+4 # cm 
+    dr = 1.0e+3 # cm 
     dr_nat = dr * 5.0e+10
 
     vs = ((T_in * S_in / (4.0 * m_n)) * (4.0 + (T_in * derivative_A_term)) / (3.0 + (T_in * derivative_A_term)))**0.5
@@ -260,7 +260,7 @@ while True:
     mach = [v_nat_in / vs]
 
     # loop over for radii
-    for p in range (10000):
+    for p in range (50000):
 
         fermion = fermion_func(T)
         A = 2.0 + fermion
