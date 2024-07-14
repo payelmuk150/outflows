@@ -89,9 +89,19 @@ def g2(x_th, y, z, w, T):
     g200 = np.trapz(integrand_200, x)
     return g200
 
-def initial_T(T, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=e_nuebar):
+def g020(x_th, y, z):
+    x = np.arange(x_th, x_th + 20, 0.1)
+    integrand_020 = x * (x + z)**2.0 * np.sqrt(np.abs(x**2.0 - x_th**2.0)) / (np.exp(x + y) + 1)
+    g020 = np.trapz(integrand_020, x)
+    return g020
 
-    Ye = initial_Ye(T)
+print('g020', g020(0, 0, 0))
+
+
+def initial_T(T, Ye, eta, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=e_nuebar):
+
+    rho = (T**3.0 / S_in) * 5.21 * 1e+8 
+    rho_MeV = rho * 5.6e+26 * (1.97e-11)**3.0
 
     # set R_nu ~ R_gain
     r_in = (R*1.0e+6)
@@ -100,16 +110,12 @@ def initial_T(T, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=e_nuebar)
 
     GR_factor_angle = ((1.0 - (2.0 * GM / (r_nu_nat))) / (1.0 - (2.0 * GM / r_in_nat)))**0.5
     factor = 1.0 - (1.0 - ((r_nu_nat / r_in_nat)**2.0 / GR_factor_angle**2.0))**0.5
-
-    rho = (T**3.0 / S_in) * 5.21 * 1e+8 
-    rho_MeV = rho * 5.6e+26 * (1.97e-11)**3.0
-    eta = 3.0 * 0.5 * (rho_MeV / m_n) / T**3.0
         
     qdot_cool_ann = (1.57e-25 * T**9.0 * 
                     (g1(m_e / T, eta, 0, 0, T) * g2(m_e / T, - eta, 0, 0, T) + g1(m_e / T, -eta, 0, 0, T) * g2(m_e / T,eta, 0, 0, T)) / rho_MeV)
 
     return ((6.8e-24 * ((Ye * L_nuebar * e_nuebar**2.0 + (1 - Ye) * L_nue * e_nue**2.0) * GR_factor_1**6.0 * (1.0e+6/r_in)**2) * factor * GR_factor_angle**6.0
-            - 1.6e-24 * T**6.0) - qdot_cool_ann)
+            - 1.6e-24 * T**6.0) - qdot_cool_ann) / 1e-20
 
 
 #initial_vs = [(1.88e+6 + 2 * 1e-4 * 1e+6 * i) for i in range(10)] 
@@ -117,8 +123,8 @@ def initial_T(T, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=e_nuebar)
 #initial_vs = [ (11.9e+6 + 1e-2 * 1e+6 * i) for i in range(20) ]
 
 # Range for the mixed 3D Bollig with Ye evol
-vmin = 12.0e+6
-vmax = 13.0e+6
+vmin = 11.5e+6
+vmax = 12.5e+6
 
 # Range for the unmixed 3D Bollig with Ye evol
 #vmin = 8.5e+6
@@ -177,7 +183,7 @@ while True:
     print('GR_factor', GR_factor_1)
 
     def lam_nue_n(x, GR_factor_1=GR_factor_1):
-        alpha = 1.26
+        alpha = 1.27
         GF = 1.166e-11 # MeV^-2
         delta = 1.293
         sec_to_MeVinv = 6.58e-22
@@ -190,7 +196,7 @@ while True:
         return ((1 + 3*alpha**2) / (2 * np.pi**2)) * GF**2 * (L_eff/r_in_nat**2) * (e_eff + 2*delta + delta**2/eavg_eff) * (1 - x) 
 
     def lam_nuebar_p(x, GR_factor_1=GR_factor_1):
-        alpha = 1.26
+        alpha = 1.27
         GF = 1.166e-11 # MeV^-2
         delta = 1.293
         sec_to_MeVinv = 6.58e-22
@@ -202,27 +208,58 @@ while True:
 
         return ((1 + 3*alpha**2) / (2 * np.pi**2)) * GF**2 * (L_eff/r_in_nat**2) * (e_eff - 2*delta + delta**2/eavg_eff) * (1 - x) 
 
-    def other_lam(T):
-        sec_to_MeVinv = 6.58e-22
-        return 0.448 * T**5 * sec_to_MeVinv
+    def lam_eplus_n(T, eta):
+        GF = 1.166e-11 # MeV^-2
+        Vud = 0.974
+        alpha = 1.27
+        delta = 1.293
 
-    def initial_Ye(T):
+        const = (GF**2 * Vud**2 * (1 + 3*alpha**2) / (2*np.pi**3))   
+        return const * T**5 * g020(m_e/T, eta, delta/T)
+
+    def lam_eminus_p(T, eta):
+        GF = 1.166e-11 # MeV^-2
+        Vud = 0.974
+        alpha = 1.27
+        delta = 1.293
+
+        const = (GF**2 * Vud**2 * (1 + 3*alpha**2) / (2*np.pi**3))   
+        return const * T**5 * g020(delta/T, -eta, -delta/T)
+
+    def initial_eta(T, Ye):
+
+        rho = (T**3.0 / S_in) * 5.21 * 1e+8 
+        rho_MeV = rho * 5.6e+26 * (1.97e-11)**3.0
+
+        return 3.0 * Ye * (rho_MeV / m_n) / T**3.0
+
+    def initial_Ye(T, Ye, eta):
+
         x = np.sqrt(1 - (r_in_nat**2/r_in_nat**2))
-        lam1 = lam_nue_n(x) + other_lam(T)
-        lam2 = lam1 + lam_nuebar_p(x) + other_lam(T)
+        lam1 = lam_nue_n(x) + lam_eplus_n(T, eta=eta)
+        lam2 = lam1 + lam_nuebar_p(x) + lam_eminus_p(T, eta=eta)
         #print(lam1)
         #print(lam2)
-        return lam1/lam2
+        return Ye - lam1/lam2
+
+    def initials(vars):
+        T, Ye = vars
+        eta = initial_eta(T, Ye)
+
+        eq1 = initial_T(T, Ye, eta=eta)
+        eq2 = initial_Ye(T, Ye, eta=eta)
+
+        return [eq1, eq2]
 
     # Initial temperature
-    T_in = sc.optimize.fsolve(initial_T, 4.0)[0]
+    T_in, Ye = sc.optimize.fsolve(initials, [4.8, 0.5])
     print('T_in',T_in)
-
-    Ye = initial_Ye(T=T_in)
     Ye_list = [Ye]
-
-
     print('Initial Ye', Ye)
+    print('Initial eta', initial_eta(T_in, Ye))
+
+    print('initial qdot', initial_T(T_in, Ye, initial_eta(T_in, Ye)))
+    print('initial Ye equation', initial_Ye(T_in, Ye, initial_eta(T_in, Ye)))
 
     printed = False
 
@@ -301,8 +338,12 @@ while True:
                 # Mach number
                 m = v / vs
                 x = 1 - factor
-                lam1 = lam_nue_n(x) + other_lam(T)
-                lam2 = lam1 + lam_nuebar_p(x) + other_lam(T)
+
+                rho_MeV = density8 * 1e+8 * 5.6e+26 * (1.97e-11)**3.0
+                eta = 3.0 * Ye * (rho_MeV / m_n) / T**3.0
+
+                lam1 = lam_nue_n(x) + lam_eplus_n(T, eta)
+                lam2 = lam1 + lam_nuebar_p(x) + lam_eminus_p(T, eta)
 
                 #print('lam_nu_e', lam_nue_n(x))
                 #print('other lam', other_lam(T))
@@ -331,7 +372,6 @@ while True:
                 rho = (T**3.0 / S) * A * 1e+8 / 1.055
                 dM = 4 * pi * rho * (r / 5.0e+10)**2.0 * (dr_nat / 5.0e+10)
                 M = M + dM
-                mach.append(m)
 
         if(T < 0):
             print ('Negative T alert!!', T)
@@ -342,16 +382,18 @@ while True:
 
         if(np.isnan(T)):
             print('T is nan !!')
+            break
 
         vs_list.append(vs * 3e+10)
         v_list.append(v * 3e+10)
         r_list.append(r)
         Ye_list.append(Ye)
+        mach.append(m)
 
 
         rho_8 = rho / 1e+8
         rho_MeV = rho * 5.6e+26 * (1.97e-11)**3.0
-        eta = 3.0 * 0.5 * (rho_MeV / m_n) / T**3.0
+        eta = 3.0 * Ye * (rho_MeV / m_n) / T**3.0
         
         qdot_cool_ann = (1.57e-25 * T**9.0 * 
                         (g1(m_e / T, eta, 0, 0, T) * g2(m_e / T, - eta, 0, 0, T) + g1(m_e / T, -eta, 0, 0, T) * g2(m_e / T,eta, 0, 0, T)) / rho_MeV)
@@ -366,11 +408,15 @@ while True:
     #break
 
     if max(mach) > 1: 
+        #print(vmin)
+        #print(vmax)
         vmax = v_in
         v_in = (vmin + vmax) / 2
+        print('new vin', v_in)
     elif max(mach) < 1 and max(mach) > 0.99: 
         break 
     else: 
+        #print('wtf')
         vmin = v_in
         v_in = (vmin + vmax) / 2
 
@@ -399,8 +445,6 @@ subtract_id = int(15 / (dr / 1e+5))
 print(subtract_id, 'id to subtract')
 left_to_max_id = id_max_mach - subtract_id
 print('left_to_max_id', left_to_max_id)
-
-v_in = 12037841.796875
 
 id_crit = 0
 v_in_crit = [v_in] 
@@ -445,7 +489,7 @@ for v_in in v_in_crit:
         print('GR_factor', GR_factor_1)
 
         def lam_nue_n(x, GR_factor_1=GR_factor_1):
-            alpha = 1.26
+            alpha = 1.27
             GF = 1.166e-11 # MeV^-2
             delta = 1.293
             sec_to_MeVinv = 6.58e-22
@@ -458,7 +502,7 @@ for v_in in v_in_crit:
             return ((1 + 3*alpha**2) / (2 * np.pi**2)) * GF**2 * (L_eff/r_in_nat**2) * (e_eff + 2*delta + delta**2/eavg_eff) * (1 - x) 
 
         def lam_nuebar_p(x, GR_factor_1=GR_factor_1):
-            alpha = 1.26
+            alpha = 1.27
             GF = 1.166e-11 # MeV^-2
             delta = 1.293
             sec_to_MeVinv = 6.58e-22
@@ -470,24 +514,58 @@ for v_in in v_in_crit:
 
             return ((1 + 3*alpha**2) / (2 * np.pi**2)) * GF**2 * (L_eff/r_in_nat**2) * (e_eff - 2*delta + delta**2/eavg_eff) * (1 - x) 
 
-        def other_lam(T):
-            sec_to_MeVinv = 6.58e-22
-            return 0.448 * T**5 * sec_to_MeVinv
+        def lam_eplus_n(T, eta):
+            GF = 1.166e-11 # MeV^-2
+            Vud = 0.974
+            alpha = 1.27
+            delta = 1.293
 
-        def initial_Ye(T):
+            const = (GF**2 * Vud**2 * (1 + 3*alpha**2) / (2*np.pi**3))   
+            return const * T**5 * g020(m_e/T, eta, delta/T)
+
+        def lam_eminus_p(T, eta):
+            GF = 1.166e-11 # MeV^-2
+            Vud = 0.974
+            alpha = 1.27
+            delta = 1.293
+
+            const = (GF**2 * Vud**2 * (1 + 3*alpha**2) / (2*np.pi**3))   
+            return const * T**5 * g020(delta/T, -eta, -delta/T)
+
+        def initial_eta(T, Ye):
+
+            rho = (T**3.0 / S_in) * 5.21 * 1e+8 
+            rho_MeV = rho * 5.6e+26 * (1.97e-11)**3.0
+
+            return 3.0 * Ye * (rho_MeV / m_n) / T**3.0
+
+        def initial_Ye(T, Ye, eta):
+
             x = np.sqrt(1 - (r_in_nat**2/r_in_nat**2))
-            lam1 = lam_nue_n(x) + other_lam(T)
-            lam2 = lam1 + lam_nuebar_p(x) + other_lam(T)
+            lam1 = lam_nue_n(x) + lam_eplus_n(T, eta=eta)
+            lam2 = lam1 + lam_nuebar_p(x) + lam_eminus_p(T, eta=eta)
             #print(lam1)
             #print(lam2)
-            return lam1/lam2
+            return Ye - lam1/lam2
+
+        def initials(vars):
+            T, Ye = vars
+            eta = initial_eta(T, Ye)
+
+            eq1 = initial_T(T, Ye, eta=eta)
+            eq2 = initial_Ye(T, Ye, eta=eta)
+
+            return [eq1, eq2]
 
         # Initial temperature
-        T_in = sc.optimize.fsolve(initial_T, 4.0)[0]
+        T_in, Ye = sc.optimize.fsolve(initials, [4.8, 0.5])
         print('T_in',T_in)
-
-        Ye = initial_Ye(T=T_in)
         Ye_list = [Ye]
+        print('Initial Ye', Ye)
+        print('Initial eta', initial_eta(T_in, Ye))
+
+        print('initial qdot', initial_T(T_in, Ye, initial_eta(T_in, Ye)))
+        print('initial Ye equation', initial_Ye(T_in, Ye, initial_eta(T_in, Ye)))
 
         printed = False
 
@@ -565,8 +643,12 @@ for v_in in v_in_crit:
                     # Mach number
                     m = v / vs
                     x = 1 - factor
-                    lam1 = lam_nue_n(x) + other_lam(T)
-                    lam2 = lam1 + lam_nuebar_p(x) + other_lam(T)
+
+                    rho_MeV = density8 * 1e+8 * 5.6e+26 * (1.97e-11)**3.0
+                    eta = 3.0 * Ye * (rho_MeV / m_n) / T**3.0
+
+                    lam1 = lam_nue_n(x) + lam_eplus_n(T, eta)
+                    lam2 = lam1 + lam_nuebar_p(x) + lam_eminus_p(T, eta)
 
                     if id_crit > left_to_max_id and m < 1.01: # step over the critical radius
                         dv = dv_temp
@@ -669,8 +751,12 @@ for v_in in v_in_crit:
                     # Mach number
                     m = v / vs
                     x = 1 - factor
-                    lam1 = lam_nue_n(x) + other_lam(T)
-                    lam2 = lam1 + lam_nuebar_p(x) + other_lam(T)
+
+                    rho_MeV = density8 * 1e+8 * 5.6e+26 * (1.97e-11)**3.0
+                    eta = 3.0 * Ye * (rho_MeV / m_n) / T**3.0
+
+                    lam1 = lam_nue_n(x) + lam_eplus_n(T, eta)
+                    lam2 = lam1 + lam_nuebar_p(x) + lam_eminus_p(T, eta)
 
                     dv = ((2 * vs**2 / r) - ((GM / r**2) * (1 - vs**2) * GR_factor) - (qdot * beta / (v * y_fac * (1 + 3 * vs**2)))) * dr_nat * (1.0 - v**2.0) / (v - (vs * vs / v))
                     dS = (qdot * m_n / (T * v * y_fac)) * dr_nat
@@ -742,6 +828,7 @@ for v_in in v_in_crit:
 
             if(np.isnan(T)):
                 print('T is nan !!')
+                break
 
             vs_list.append(vs * 3e+10)
             v_list.append(v * 3e+10)
@@ -788,10 +875,3 @@ print('rho_f',(T**3.0/S)*A*1e+8 / 1.055)
 
 P_calculation = (S * (pow(T,3.0)/S)*A*1e+8 / 1.055)**(4.0/3) # P propto (S rho)^4/3, ignorong the constant factors
 print('Calculated boundary pressure', P_calculation)
-
-
-
-
-
-
-
