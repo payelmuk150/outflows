@@ -36,6 +36,9 @@ print('# filelen = ', filelen)
 
 # Front shock parameters (to calculate the jump velocity)
 vshock0 =  7.0e8 #1.0e9
+tpb = 2.0
+
+
 #tps = 1.4
 #rshock0 = vshock0*tps
  
@@ -60,7 +63,7 @@ rho_target = (M_target / M_sun - pns_mass) * M_sun / (4.0 * np.pi * r_target**3 
 print('# Boundary rho', rho_target)
 
 # Boundary pressure
-P_target = (Sbr_ps * rho_target / 1.055)**(4.0/3.0)		# P propto (S rho)^4/3, ignoring the constant factors
+P_target = (Sbr_ps * rho_target)**(4.0/3.0)		# P propto (S rho)^4/3, ignoring the constant factors
 print('# Boundary pressure (target)', P_target)
 # Amol: more accurate expression with constant factors given below:
 #P_target = (1.0/4.0)*(45/(2*pi**2*g_ps))**(1.0/3.0) (Sbr_ps * rho_target_in_nat)^4
@@ -70,39 +73,66 @@ print('# Boundary pressure (target)', P_target)
 #GM=7.56395e+15 * pns_mass
 GM = (M_sun * cl**2)/(m_pl**2 * MeVinerg) * pns_mass	# G*M_PNS in MeV^{-1}
 
-r_front = 3.0e+9										# Is this the front shock radius? If so, then what is Rs?
+#r_front = 3.0e+9										# Is this the front shock radius? If so, then what is Rs?
 
 # This is the radius of the termination shock. I have set it to a huge number here to make it redundant 
 # in the context of subsonic outflows
 #R_t = 1.8e+12
 
 # PNS radius
-R = 1.9 											# PNS radius in units of 10^6 cm
+R = 1.7 											# PNS radius in units of 10^6 cm
 r_in = R * 1.0e+6									# units of cm
 r_in_nat = r_in/hbarc								# Initial radius in MeV^{-1}
 
+strmns = str(pns_mass) + "M"
+strrns = str(round(r_in/1.0e5)) + "km"
+strtpb = str(tpb) + "sGR"
+
+print ("# PNS radius in km: ", r_in/1.0e5)
+print ("# PNS mass in solar masses: ", strmns)
+print ("# Initial time post bounce: ", strtpb)
 
 # neutrino parameters. Luminosities and energies.
 
-### Bollig parameters 3D
-#strlum = "_Bollig_3D_lum"
-#L_nue = 10.76										# units of 10^51 erg/s
-#L_nuebar = 10.04 
-## Pinching parameters 2.1 for nue and 1.5 for nuebar
-## Check below values using Yecalc script
-#e_nuebar = 21.8771 									# 16.23, sqrt(<E^3>/<E>), ,<E>_nuebar = Hudepohl_11.7MeV_1sec
-#e_nue = 17.464										# 13.08, sqrt(<E^3>/<E>), ,<E>_nue = Hudepohl_9.7MeV_1sec
+### Mixing radius
+rmix = 1.701e6 											# rmix in cm # 1.0e13 # (infinity) # r_in/1.0e5 # 
+rmix_in_nat = rmix/hbarc
+strmix = str(round(rmix/1.0e5)) + "km"
+if rmix > 1.0e9:
+	strmix = "infkm"
+print ("# Radius of flavor mixing: ", strmix)
 
-## Bollig parameters 3D, with flavor mixing (equilibration) 
-strlum = "_Bollig_3D_lum_mix"
-L_nue = 11.34										# units of 10^51 erg/s
-L_nuebar = 11.10 
+
+### Bollig parameters 3D
+strlum = "_Bollig_3D_lum" + "_" + strrns + "_" + strmns + "_" + strtpb + "_rmix=" + strmix
+L_nue = 10.76										# units of 10^51 erg/s
+L_nuebar = 10.04 
 # Pinching parameters 2.1 for nue and 1.5 for nuebar
 # Check below values using Yecalc script
-e_nuebar = 22.3347 									# 16.23, sqrt(<E^3>/<E>), ,<E>_nuebar = Hudepohl_11.7MeV_1sec
-e_nue = 21.0594										# 13.08, sqrt(<E^3>/<E>), ,<E>_nue = Hudepohl_9.7MeV_1sec
+e_nuebar = 21.8771 									# 16.23, sqrt(<E^3>/<E>), ,<E>_nuebar = Hudepohl_11.7MeV_1sec
+e_nue = 17.464										# 13.08, sqrt(<E^3>/<E>), ,<E>_nue = Hudepohl_9.7MeV_1sec
 
+# Bollig parameters 3D, with flavor mixing (equilibration) 
+#strlum = "_Bollig_3D_lum_mix"
+L_nue_mix = 11.34										# units of 10^51 erg/s
+L_nuebar_mix = 11.10 
+# Pinching parameters 2.1 for nue and 1.5 for nuebar
+# Check below values using Yecalc script
+e_nuebar_mix = 22.3347 									# 16.23, sqrt(<E^3>/<E>), ,<E>_nuebar = Hudepohl_11.7MeV_1sec
+e_nue_mix = 21.0594										# 13.08, sqrt(<E^3>/<E>), ,<E>_nue = Hudepohl_9.7MeV_1sec
 
+def L_nue_f(r):
+	return L_nue*(r < rmix_in_nat) + L_nue_mix*(r >= rmix_in_nat)
+
+def L_nuebar_f(r):
+	return L_nuebar*(r < rmix_in_nat) + L_nuebar_mix*(r >= rmix_in_nat)
+
+def e_nue_f(r):
+	return e_nue*(r < rmix_in_nat) + e_nue_mix*(r >= rmix_in_nat)
+	
+def e_nuebar_f(r):
+	return e_nuebar*(r < rmix_in_nat) + e_nuebar_mix*(r >= rmix_in_nat)
+	
 ## Bollig parameters 1D
 #strlum = "_Bollig_lum"
 #L_nue = 7.69										# units of 10^51 erg/s
@@ -180,7 +210,7 @@ def initial_T(T):
 	qdot_cool_ann = (1.57e-25 * T**9.0 * 
 					(g1(m_e / T, eta, 0, 0, T) * g2(m_e / T, - eta, 0, 0, T) + g1(m_e / T, -eta, 0, 0, T) * g2(m_e / T,eta, 0, 0, T)) / rho_MeV)
 
-	return ((3.4e-24 * ((L_nuebar * e_nuebar**2.0 + L_nue * e_nue**2.0) * GR_factor_1**6.0 * (1.0e+6/r_in)**2) * factor * GR_factor_angle**6.0
+	return ((3.4e-24 * ((L_nuebar_f(r_in_nat) * e_nuebar_f(r_in_nat)**2.0 + L_nue_f(r_in_nat) * e_nue_f(r_in_nat)**2.0) * GR_factor_1**6.0 * (1.0e+6/r_in)**2) * factor * GR_factor_angle**6.0
 			- 1.6e-24 * T**6.0) - qdot_cool_ann)
 				   # Includes heating by neutrino absorption, cooling by e-/e+ capture, and cooling by e-e+ annihilation
 				   # Generalization of Qian and Woosley, Eqs. (10), (11), (13), and (9) with GR corrections and changing g_star
@@ -234,9 +264,14 @@ viter = 0
 v_in_lo = 0.0*cl
 v_in_hi = vs_in*cl
 
+v_in = (v_in_lo + v_in_hi)/2.0
+
 convergence_fraction = 1.0
 
-while viter < 30:
+print ('# v_in rel error = ', (v_in_hi-v_in_lo)/(vs_in*cl))
+
+#while viter < 30:
+while (v_in_hi-v_in_lo)/(vs_in*cl) > 1.0e-9 or v_in_lo != v_in:
 
 	v_in = (v_in_lo + v_in_hi)/2.0
 
@@ -284,6 +319,7 @@ while viter < 30:
 	rho_list = [] #[rho_in]
 	stage = []
 	qdot_list = []
+	qdot_cool_list = []
 #	dT_list = []
 #	dT_list2 = []
 	Tferr_list = []
@@ -382,10 +418,11 @@ while viter < 30:
 						(g1(m_e / T, eta, 0, 0, T) * g2(m_e / T, - eta, 0, 0, T) + g1(m_e / T, -eta, 0, 0, T) * g2(m_e / T,eta, 0, 0, T)) / rho_MeV)
 
 		factor = 1.0 - (1.0 - ((r_in_nat / r)**2.0 / GR_factor_angle**2.0))**0.5 # gravitational bending
-		qdot = ((3.4e-24 * ((L_nuebar * e_nuebar**2.0 + L_nue * e_nue**2.0) * GR_factor_1**6.0 * (1.0e+6 / r_in)**2 ) * factor * GR_factor_angle**6.0
+		qdot = ((3.4e-24 * ((L_nuebar_f(r) * e_nuebar_f(r)**2.0 + L_nue_f(r) * e_nue_f(r)**2.0) * GR_factor_1**6.0 * (1.0e+6 / r_in)**2 ) * factor * GR_factor_angle**6.0
 			- 1.6e-24 * T**6.0) * fac - qdot_cool_ann)
 
 		qdot_list.append(qdot)
+		qdot_cool_list.append(qdot_cool_ann + 1.6e-24 * T**6.0 * fac)
 
 #	Pressure-matching at the far boundary
 	P_calc = (S * (T**3.0 / S) * A * 1e+8 / 1.055)**(4.0/3.0) # P propto (S rho)^4/3, ignoring the constant factors
@@ -445,12 +482,17 @@ while viter < 30:
 #############################################################################################################################################
 
 ###################################### Jump across the sonic point ##############################################
-if viter == 30:
+# if viter == 30:
+if (v_in_hi-v_in_lo)/(vs_in*cl) <= 1.0e-9 and v_in_lo == v_in:
 	icrit = np.argmax(v_list)
 	vcrit = np.max(v_list)
 	rcrit = r_list[icrit]
 	Scrit = S_list[icrit]
 	vscrit = vs_list[icrit]
+	
+	print("# vcrit = ", vcrit)
+	print("# vscrit = ", vscrit)
+	print("# rcrit = ", rcrit, "\n")
 	
 ###################################### Run another iteration, but with a long jump over the sonic point #######################
 
@@ -605,7 +647,7 @@ if viter == 30:
 						(g1(m_e / T, eta, 0, 0, T) * g2(m_e / T, - eta, 0, 0, T) + g1(m_e / T, -eta, 0, 0, T) * g2(m_e / T,eta, 0, 0, T)) / rho_MeV)
 
 		factor = 1.0 - (1.0 - ((r_in_nat / r)**2.0 / GR_factor_angle**2.0))**0.5 # gravitational bending
-		qdot = ((3.4e-24 * ((L_nuebar * e_nuebar**2.0 + L_nue * e_nue**2.0) * GR_factor_1**6.0 * (1.0e+6 / r_in)**2 ) * factor * GR_factor_angle**6.0
+		qdot = ((3.4e-24 * ((L_nuebar_f(r) * e_nuebar_f(r)**2.0 + L_nue_f(r) * e_nue_f(r)**2.0) * GR_factor_1**6.0 * (1.0e+6 / r_in)**2 ) * factor * GR_factor_angle**6.0
 			- 1.6e-24 * T**6.0) * fac - qdot_cool_ann)
 
 		qdot_list.append(qdot)
@@ -769,7 +811,7 @@ if viter == 30:
 							(g1(m_e / T, eta, 0, 0, T) * g2(m_e / T, - eta, 0, 0, T) + g1(m_e / T, -eta, 0, 0, T) * g2(m_e / T,eta, 0, 0, T)) / rho_MeV)
 
 			factor = 1.0 - (1.0 - ((r_in_nat / r)**2.0 / GR_factor_angle**2.0))**0.5 # gravitational bending
-			qdot = ((3.4e-24 * ((L_nuebar * e_nuebar**2.0 + L_nue * e_nue**2.0) * GR_factor_1**6.0 * (1.0e+6 / r_in)**2 ) * factor * GR_factor_angle**6.0
+			qdot = ((3.4e-24 * ((L_nuebar_f(r) * e_nuebar_f(r)**2.0 + L_nue_f(r) * e_nue_f(r)**2.0) * GR_factor_1**6.0 * (1.0e+6 / r_in)**2 ) * factor * GR_factor_angle**6.0
 				- 1.6e-24 * T**6.0) * fac - qdot_cool_ann)
 
 			qdot2_list.append(qdot)
@@ -817,8 +859,12 @@ if viter < 30:
 		f.write(f'{r_list[i]} {T_list[i]} {S_list[i]} {v_list[i]} {vs_list[i]} {Tferr_list[i]}\n')
 	f.close()
 
+	f = open('qdot_test_'+strprog+strlum+'.txt' ,'w')
+	for i in range(len(qdot_list)):
+		f.write(f'{r_list[i]} {qdot_list[i]} {qdot_cool_list[i]} \n')
+	f.close()
 
-	f = open('Nucleo_Amol_'+strprog+strlum+'.txt' ,'w')
+	f = open('Nucleo_'+strprog+strlum+'.txt' ,'w')
 	for i in range(len(t_list)):
 		vexp_list.append(vexp(r_list[i]))
 		f.write(f'{t_list[i]} {r_list[i]} {T_list[i]} {rho_list[i]} {v_list[i]}\n')
@@ -863,7 +909,7 @@ else:
 		f.write(f'{r2_list[i]} {T2_list[i]} {S2_list[i]} {v2_list[i]} {vs2_list[i]} {Tferr2_list[i]}\n')
 	f.close()
 	
-	f = open('Nucleo_Amol_'+strprog+strlum+'.txt' ,'w')
+	f = open('Nucleo_'+strprog+strlum+'.txt' ,'w')
 	for i in range(idxRt):
 		vexp_list.append(vexp(r_list[i]))
 		f.write(f'{t_list[i]} {r_list[i]} {T_list[i]} {rho_list[i]} {v_list[i]}\n')

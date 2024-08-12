@@ -1,0 +1,195 @@
+# filelen =  1164
+# Boundary rho 74873.93670014887
+# Boundary pressure (target) 34406663.31925275
+# PNS radius in km:  17.0
+# PNS mass in solar masses:  1.8M
+# Initial time post bounce:  2.0sGR
+# Radius of flavor mixing in km:  10000000.0
+# gstar at 3 GK 2.0300589807763343
+# GR_factor 1.2061160643499067
+# T_in 5.0771378770263755
+# Starting density 11364317149.74029
+# g_star at T_in =  5.494875836546929 
+
+# Iteration #  1
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 1558208698.9813337
+# Mass outflow rate 0.268207670827777
+# Calculated far boundary S:  6.030182556201615
+# Calculated far boundary rho:  6110595638.852414
+# Calculated far pressure:  114169139630229.94
+# Target far pressure:  34406663.31925275
+# fractional convergence:  3318226.5936168716
+# Outflow speed exceeds sound speed 0.09536058952643182 0.09322512135030492 
+
+# Iteration #  2
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 779104349.4906669
+# Mass outflow rate 0.1341038354138885
+# Calculated far boundary S:  6.2076908961946256
+# Calculated far boundary rho:  2667763365.1789727
+# Calculated far pressure:  39303682045895.664
+# Target far pressure:  34406663.31925275
+# fractional convergence:  1142326.626518283
+# Outflow speed exceeds sound speed 0.09918102851551014 0.08278955024832384 
+
+# Iteration #  3
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 389552174.74533343
+# Mass outflow rate 0.06705191770694426
+# Calculated far boundary S:  6.6710936015747
+# Calculated far boundary rho:  1262168192.1680758
+# Calculated far pressure:  15949573511925.648
+# Target far pressure:  34406663.31925275
+# fractional convergence:  463559.60057125136
+# Outflow speed exceeds sound speed 0.09648120578298079 0.07668200319384674 
+
+# Iteration #  4
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 194776087.37266672
+# Mass outflow rate 0.03352595885347213
+# Calculated far boundary S:  7.677140513141518
+# Calculated far boundary rho:  748091345.0217875
+# Calculated far pressure:  9576398577242.018
+# Target far pressure:  34406663.31925275
+# fractional convergence:  278328.7667775708
+# Outflow speed exceeds sound speed 0.07816931551263111 0.07718778996217607 
+
+# Iteration #  5
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 97388043.68633336
+# Mass outflow rate 0.016762979426736064
+# Calculated far boundary S:  9.772930990107108
+# Calculated far boundary rho:  127521717.56133704
+# Calculated far pressure:  1248749616739.551
+# Target far pressure:  34406663.31925275
+# fractional convergence:  36292.83079529234
+# Outflow speed exceeds sound speed 0.1472378959349779 0.06753514299578516 
+
+# Iteration #  6
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 48694021.84316668
+# Mass outflow rate 0.008381489713368032
+# Calculated far boundary S:  14.057320022621614
+# Calculated far boundary rho:  87644577.54713209
+# Calculated far pressure:  1229797197638.7163
+# Target far pressure:  34406663.31925275
+# fractional convergence:  35741.99507707756
+# Outflow speed exceeds sound speed 0.11696095325362585 0.0808609011355452 
+
+# Iteration #  7
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 24347010.92158334
+# Mass outflow rate 0.004190744856684016
+# Calculated far boundary S:  22.994770130784335
+# Calculated far boundary rho:  38499055.63168956
+# Calculated far pressure:  791472055516.2893
+# Target far pressure:  34406663.31925275
+# fractional convergence:  23002.4527955348
+# Outflow speed exceeds sound speed 0.09861148251121225 0.09791716861861163 
+
+# Iteration #  8
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 12173505.46079167
+# Mass outflow rate 0.002095372428342008
+# Calculated far boundary S:  43.668397137737294
+# Calculated far boundary rho:  5204180.144018684
+# Calculated far pressure:  129128711468.50768
+# Target far pressure:  34406663.31925275
+# fractional convergence:  3752.014649236615
+# Outflow speed exceeds sound speed 0.10941242281930798 0.10779791760686393 
+
+# Iteration #  9
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 6086752.730395835
+# Mass outflow rate 0.001047686214171004
+# Calculated far boundary S:  176.8535471991355
+# Calculated far boundary rho:  3620765.698019
+# Calculated far pressure:  513904377219.96643
+# Target far pressure:  34406663.31925275
+# fractional convergence:  14935.187576561768
+# Calculated pressure exceeds target pressure 513904377219.96643 34406663.31925275 
+
+# Iteration #  10
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 9130129.095593752
+# Mass outflow rate 0.0015715293212565059
+# Calculated far boundary S:  62.63399920082461
+# Calculated far boundary rho:  106749.7275689556
+# Calculated far pressure:  1172823368.9524176
+# Target far pressure:  34406663.31925275
+# fractional convergence:  33.087099875684466
+# Outflow speed exceeds sound speed 0.07672460191840835 0.07373393440770973 
+
+# Iteration #  11
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 7608440.912994794
+# Mass outflow rate 0.0013096077677137552
+# Calculated far boundary S:  112.53038724673605
+# Calculated far boundary rho:  1061149.0425781847
+# Calculated far pressure:  54750949321.05935
+# Target far pressure:  34406663.31925275
+# fractional convergence:  1590.2891294641365
+# Calculated pressure exceeds target pressure 54750949321.05935 34406663.31925275 
+
+# Iteration #  12
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 8369285.0042942725
+# Mass outflow rate 0.0014405685444851305
+# Calculated far boundary S:  72.50336770751402
+# Calculated far boundary rho:  274747.2093988975
+# Calculated far pressure:  5027885125.433043
+# Target far pressure:  34406663.31925275
+# fractional convergence:  145.1311455510891
+# Calculated pressure exceeds target pressure 5027885125.433043 34406663.31925275 
+
+# Iteration #  13
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 8749707.049944013
+# Mass outflow rate 0.0015060489328708184
+# Calculated far boundary S:  67.00817297332445
+# Calculated far boundary rho:  68895.39775442438
+# Calculated far pressure:  715737939.233852
+# Target far pressure:  34406663.31925275
+# fractional convergence:  19.802306012433075
+# Calculated pressure exceeds target pressure 715737939.233852 34406663.31925275 
+
+# Iteration #  14
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 8939918.072768882
+# Mass outflow rate 0.001538789127063662
+# Calculated far boundary S:  64.7118317017966
+# Calculated far boundary rho:  23148.94235766455
+# Calculated far pressure:  159593983.78916126
+# Target far pressure:  34406663.31925275
+# fractional convergence:  3.638461518582016
+# Calculated pressure exceeds target pressure 159593983.78916126 34406663.31925275 
+
+# Iteration #  15
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 9035023.584181316
+# Mass outflow rate 0.001555159224160084
+# Calculated far boundary S:  63.64718055717907
+# Calculated far boundary rho:  10967.243704731389
+# Calculated far pressure:  57654375.54742328
+# Target far pressure:  34406663.31925275
+# fractional convergence:  0.675674709066076
+# Calculated pressure exceeds target pressure 57654375.54742328 34406663.31925275 
+
+# Iteration #  16
+# Initial sound speed (cm/s) 3116417397.9626675
+# Initial speed (cm/s) 9082576.339887533
+# Mass outflow rate 0.0015633442727082947
+# Calculated far boundary S:  63.13423517641841
+# Calculated far boundary rho:  6992.103019552735
+# Calculated far pressure:  31296351.438244153
+# Target far pressure:  34406663.31925275
+# fractional convergence:  0.09039853275363027
+# Far pressure match achieved (at 10% level) 31296351.438244153 34406663.31925275 
+
+# Break: 0.7257613103369502 227428383.28935757 0.13508510246078725 10363.643983769021 132590067.71278434 
+
+# S 63.13423517641841
+# rho_f 6627.58580052392
+# Calculated boundary pressure 31296351.438244153
+Elapsed time =  35.403766489
