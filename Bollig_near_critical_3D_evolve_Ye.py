@@ -282,15 +282,17 @@ while True:
 
     # mass outflow rate
     rho_start = A * T_in**3.0 * 1e+8 / (S_in * 1.055) # g/cm^3
-    M_dot = 4.0 * np.pi * r_in**2.0 * rho_start * v_in / (2.0e+33 * GR_factor_1 ) # in solar masses
-    M_dot_list = [M_dot]
-    print ('Starting density', rho_start)
-    print('Mass outflow rate' , M_dot)
 
     print ('Initial speed (cm/s)', v_in)
     v_nat_in = v_in/(3.0e+10)
     v = v_nat_in
     S = S_in
+
+    y_fac_in = ((1.0 - (2.0 * GM / r)) / (1.0 - v**2))**0.5
+    M_dot = 4.0 * np.pi * r_in**2.0 * rho_start * v_in * y_fac_in / (2.0e+33) # in solar masses
+    M_dot_list = [M_dot]
+    print ('Starting density', rho_start)
+    print('Mass outflow rate' , M_dot)
     
     # Initial qdot set to zero at the gain radius.
     qdot = 0.0
@@ -313,6 +315,7 @@ while True:
     A = 2.0 + fermion
     density8 = (T**3.0 / S) * A / 1.055
     rho_MeV = density8 * 1e+8 * 5.6095e+26 * (1.98e-11)**3.0
+    rho = rho_MeV / (5.6095e+26 * (1.98e-11)**3.0)
 
     # loop over for radii
     for p in range (60000):
@@ -361,7 +364,6 @@ while True:
 
                 dv = ((2 * vs**2 / r) - ((GM / r**2) * (1 - vs**2) * GR_factor) - (qdot * beta / (v * y_fac * (1 + ((T * S)/m_n) )))) * dr_nat * (1.0 - v**2.0) / (v - (vs * vs / v))
                 dS = (qdot * m_n / (T * v * y_fac)) * dr_nat
-                #dT = ((((qdot * dr_nat / (v * y_fac * (1 + T*S/m_n))) - (v * dv / (1 - v**2)) - (GM * GR_factor * dr_nat / r**2)) * (m_n + T*S)) - T*dS)/S
                 dy_fac = (1 / (2.0*y_fac)) * ((1-v**2)*(2*GM/r**2)*dr_nat + (1 - (2*GM/r)) * 2*v*dv) / (1 - v**2)**2
                 drho_MeV = - ((2 * r * rho_MeV * v * dr_nat * y_fac) + (r**2 * rho_MeV * y_fac * dv) + (r**2 * rho_MeV * v * dy_fac)) / (r**2 * v * y_fac)
 
@@ -374,6 +376,7 @@ while True:
                 Ye = Ye + dYe
 
                 rho = rho_MeV / (5.6095e+26 * (1.98e-11)**3.0)
+                density8 = rho / 1e+8
                 #print('rho_mev', rho_MeV)
                 #print('rho', rho)
 
@@ -423,7 +426,7 @@ while True:
         vmax = v_in
         v_in = (vmin + vmax) / 2
         print('new vin', v_in)
-    elif max(mach) < 1 and max(mach) > 0.96: 
+    elif max(mach) < 1 and max(mach) > 0.95: 
         break 
     else: 
         #print('wtf')
