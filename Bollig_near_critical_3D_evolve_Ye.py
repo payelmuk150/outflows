@@ -274,6 +274,7 @@ while True:
     # mass outflow rate
     rho_start = 5.21 * T_in**3.0 * 1e+8 / S_in # g/cm^3
     M_dot = 4.0 * np.pi * r_in**2.0 * rho_start * v_in / (2.0e+33 * GR_factor_1 ) # in solar masses
+    M_dot_list = [M_dot]
     print ('Starting density', rho_start)
     print('Mass outflow rate' , M_dot)
 
@@ -345,26 +346,26 @@ while True:
                 lam1 = lam_nue_n(x, shift=GR_factor_angle) + lam_eplus_n(T, eta)
                 lam2 = lam1 + lam_nuebar_p(x, shift=GR_factor_angle) + lam_eminus_p(T, eta)
 
-                dv = ((2 * vs**2 / r) - ((GM / r**2) * (1 - vs**2) * GR_factor) - (qdot * beta / (v * y_fac * (1 + 3 * vs**2)))) * dr_nat * (1.0 - v**2.0) / (v - (vs * vs / v))
-                dvs = ((qdot * dr_nat / (v * y_fac * (1 + 3 * vs**2))) - (v * dv / (1 - v**2)) - (GM * GR_factor * dr_nat / r**2)) * (1 + 3 * vs**2) / (6 * vs)
+                dv = ((2 * vs**2 / r) - ((GM / r**2) * (1 - vs**2) * GR_factor) - (qdot * beta / (v * y_fac * (1 + ((T * S)/m_n) )))) * dr_nat * (1.0 - v**2.0) / (v - (vs * vs / v))
                 dS = (qdot * m_n / (T * v * y_fac)) * dr_nat
+                dT = ((((qdot * dr_nat / (v * y_fac * (1 + T*S/m_n))) - (v * dv / (1 - v**2)) - (GM * GR_factor * dr_nat / r**2)) * (m_n + T*S)) - T*dS)/S
+
                 dYe = (lam1 - Ye * lam2) * dr_nat / (v * y_fac)
 
                 S = S + dS
                 r = r + dr_nat
                 v = v + dv
-                vs = vs + dvs
+                T = T + dT
                 Ye = Ye + dYe
 
                 a = derivative_A_term 
-                b = 4 - ((4 * m_n * vs**2 / S) * derivative_A_term)
-                c = -12 * m_n * vs**2 / S
+                vs = ((T * S / (4.0 * m_n)) * (4.0 + (T * a)) / (3.0 + (T * a)))**0.5
 
-                T = (-b + (b**2 - 4*a*c)**0.5) / (2 * a)
 
                 rho = (T**3.0 / S) * A * 1e+8 / 1.055
                 dM = 4 * pi * rho * (r / 5.0e+10)**2.0 * (dr_nat / 5.0e+10)
                 M = M + dM
+                M_dot_ = 4.0 * np.pi * (r / 5e+10)**2.0 * (rho / 2e+33) * (v * 3e+10) * y_fac # in solar masses
 
         if(T < 0):
             print ('Negative T alert!!', T)
@@ -382,6 +383,7 @@ while True:
         r_list.append(r)
         Ye_list.append(Ye)
         mach.append(m)
+        M_dot_list.append(M_dot_)
 
 
         rho_8 = rho / 1e+8
@@ -412,6 +414,10 @@ while True:
         #print('wtf')
         vmin = v_in
         v_in = (vmin + vmax) / 2
+
+plt.semilogx(np.array(r_list)/5e+10, M_dot_list)
+plt.title('Mdot')
+plt.show()
 
 plt.semilogx(np.array(r_list)/5e+10, Ye_list)
 plt.title('Ye')
