@@ -109,7 +109,8 @@ def initial_T(T, Ye, eta, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=
 #vmin = 2.5e+6
 #vmax = 6.8e+6
 
-vmin = 4.974121e+6
+#vmin = 4.974121e+6
+vmin = 4.9e+6
 vmax = 5.0e+6
 
 v_in = vmin
