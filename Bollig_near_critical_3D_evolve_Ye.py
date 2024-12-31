@@ -68,8 +68,6 @@ eps_nuebar = 19.8813 # 16.23, sqrt(<E^3>/<E>), ,<E>_nuebar = Hudepohl_11.7MeV_1s
 eavg_nue = 12.48    # 13.08, sqrt(<E^3>/<E>), ,<E>_nue = Hudepohl_9.7MeV_1sec
 eavg_nuebar = 15.74 # 16.23, sqrt(<E^3>/<E>), ,<E>_nuebar = Hudepohl_11.7MeV_1sec
 
-
-
 # Initial entropy 
 S_in= 6.0
 
@@ -99,9 +97,11 @@ print('g020', g020(0, 0, 0))
 
 
 def initial_T(T, Ye, eta, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=e_nuebar):
+    fermion_ = fermion_func(T)
+    A = 2.0 + fermion_
 
-    rho = (T**3.0 / S_in) * 5.21 * 1e+8 
-    rho_MeV = rho * 5.6e+26 * (1.97e-11)**3.0
+    rho = (T**3.0 / S_in) * A * 1e+8 / 1.055
+    rho_MeV = rho * 5.6095e+26 * (1.98e-11)**3.0
 
     # set R_nu ~ R_gain
     r_in = (R*1.0e+6)
@@ -127,8 +127,15 @@ def initial_T(T, Ye, eta, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=
 #vmax = 12.5e+6
 
 # Range for the unmixed 3D Bollig with Ye evol
-vmin = 8.5e+6
-vmax = 12.0e+6
+#vmin = 8.5e+6
+#vmax = 12.0e+6
+
+#vmin = 2.0e+6
+#vmax = 3.0e+6
+
+vmin = 9.0e+6
+#vmin = 9.420166e+6
+vmax = 10.0e+6
 
 v_in = vmin
 
@@ -228,8 +235,10 @@ while True:
 
     def initial_eta(T, Ye):
 
-        rho = (T**3.0 / S_in) * 5.21 * 1e+8 
-        rho_MeV = rho * 5.6e+26 * (1.97e-11)**3.0
+        fermion_ = fermion_func(T)
+        A = 2.0 + fermion_
+        rho = (T**3.0 / S_in) * A * 1e+8 / 1.055
+        rho_MeV = rho * 5.6095e+26 * (1.98e-11)**3.0
 
         return 3.0 * Ye * (rho_MeV / m_n) / T**3.0
 
@@ -258,7 +267,7 @@ while True:
     print('Initial Ye', Ye)
     print('Initial eta', initial_eta(T_in, Ye))
 
-    print('initial qdot', initial_T(T_in, Ye, initial_eta(T_in, Ye)))
+    print('initial qdot', initial_T(T_in, Ye, initial_eta(T_in, Ye)) * 1e-20)
     print('initial Ye equation', initial_Ye(T_in, Ye, initial_eta(T_in, Ye)))
 
     printed = False
@@ -272,7 +281,7 @@ while True:
     derivative_A_term = fermion_derivative 
 
     # mass outflow rate
-    rho_start = 5.21 * T_in**3.0 * 1e+8 / S_in # g/cm^3
+    rho_start = A * T_in**3.0 * 1e+8 / (S_in * 1.055) # g/cm^3
     M_dot = 4.0 * np.pi * r_in**2.0 * rho_start * v_in / (2.0e+33 * GR_factor_1 ) # in solar masses
     M_dot_list = [M_dot]
     print ('Starting density', rho_start)
@@ -293,21 +302,25 @@ while True:
 
     vs = ((T_in * S_in / (4.0 * m_n)) * (4.0 + (T_in * derivative_A_term)) / (3.0 + (T_in * derivative_A_term)))**0.5
     vs_list = [vs * 3e+10]
+    S_list = [S]
     print ('Initial sound speed (cm/s)', vs * 3e+10)
 
     mach = [v_nat_in / vs]
+    rho_list = [rho_start]
+    T_list = [T_in]
+
+    fermion = fermion_func(T)
+    A = 2.0 + fermion
+    density8 = (T**3.0 / S) * A / 1.055
+    rho_MeV = density8 * 1e+8 * 5.6095e+26 * (1.98e-11)**3.0
 
     # loop over for radii
-    for p in range (30000):
-
-        fermion = fermion_func(T)
-        A = 2.0 + fermion
+    for p in range (60000):
 
         GR_factor = 1.0 / (1.0 - (2.0 * GM / r))
         GR_factor_angle = ((1.0 - (2.0 * GM / r_in_nat)) / (1.0 - (2.0 * GM / r)))**0.5
         y_fac = ((1.0 - (2.0 * GM / r)) / (1.0 - v**2))**0.5
        
-        density8 = (T**3.0 / S) * A / 1.055
         X_n = 828 * T**(9.0 / 8) * np.exp(- 7.074 / T) / density8**(3.0 / 4.0)
 
         if X_n >= 1.0:
@@ -335,12 +348,12 @@ while True:
                 derivative_A_term = fermion_derivative 
 
                 beta = (1.0 / 4.0) * (1.0 + (3.0 + T * derivative_A_term)**-1)
+                vs = ((T * beta * S)/m_n)**0.5
 
                 # Mach number
                 m = v / vs
                 x = 1 - factor
 
-                rho_MeV = density8 * 1e+8 * 5.6e+26 * (1.97e-11)**3.0
                 eta = 3.0 * Ye * (rho_MeV / m_n) / T**3.0
 
                 lam1 = lam_nue_n(x, shift=GR_factor_angle) + lam_eplus_n(T, eta)
@@ -348,21 +361,23 @@ while True:
 
                 dv = ((2 * vs**2 / r) - ((GM / r**2) * (1 - vs**2) * GR_factor) - (qdot * beta / (v * y_fac * (1 + ((T * S)/m_n) )))) * dr_nat * (1.0 - v**2.0) / (v - (vs * vs / v))
                 dS = (qdot * m_n / (T * v * y_fac)) * dr_nat
-                dT = ((((qdot * dr_nat / (v * y_fac * (1 + T*S/m_n))) - (v * dv / (1 - v**2)) - (GM * GR_factor * dr_nat / r**2)) * (m_n + T*S)) - T*dS)/S
+                #dT = ((((qdot * dr_nat / (v * y_fac * (1 + T*S/m_n))) - (v * dv / (1 - v**2)) - (GM * GR_factor * dr_nat / r**2)) * (m_n + T*S)) - T*dS)/S
+                dy_fac = (1 / (2.0*y_fac)) * ((1-v**2)*(2*GM/r**2)*dr_nat + (1 - (2*GM/r)) * 2*v*dv) / (1 - v**2)**2
+                drho_MeV = - ((2 * r * rho_MeV * v * dr_nat * y_fac) + (r**2 * rho_MeV * y_fac * dv) + (r**2 * rho_MeV * v * dy_fac)) / (r**2 * v * y_fac)
 
                 dYe = (lam1 - Ye * lam2) * dr_nat / (v * y_fac)
 
                 S = S + dS
                 r = r + dr_nat
                 v = v + dv
-                T = T + dT
+                rho_MeV += drho_MeV
                 Ye = Ye + dYe
 
-                a = derivative_A_term 
-                vs = ((T * S / (4.0 * m_n)) * (4.0 + (T * a)) / (3.0 + (T * a)))**0.5
+                rho = rho_MeV / (5.6095e+26 * (1.98e-11)**3.0)
+                #print('rho_mev', rho_MeV)
+                #print('rho', rho)
 
-
-                rho = (T**3.0 / S) * A * 1e+8 / 1.055
+                T = (rho * 1.055 * S / (A * 1e+8))**0.333333
                 dM = 4 * pi * rho * (r / 5.0e+10)**2.0 * (dr_nat / 5.0e+10)
                 M = M + dM
                 M_dot_ = 4.0 * np.pi * (r / 5e+10)**2.0 * (rho / 2e+33) * (v * 3e+10) * y_fac # in solar masses
@@ -378,16 +393,16 @@ while True:
             print('T is nan !!')
             break
 
+        M_dot_list.append(M_dot_)
         vs_list.append(vs * 3e+10)
         v_list.append(v * 3e+10)
         r_list.append(r)
         Ye_list.append(Ye)
+        S_list.append(S)
         mach.append(m)
-        M_dot_list.append(M_dot_)
+        rho_list.append(rho)
+        T_list.append(T)
 
-
-        rho_8 = rho / 1e+8
-        rho_MeV = rho * 5.6e+26 * (1.97e-11)**3.0
         eta = 3.0 * Ye * (rho_MeV / m_n) / T**3.0
         
         qdot_cool_ann = (1.57e-25 * T**9.0 * 
@@ -408,12 +423,15 @@ while True:
         vmax = v_in
         v_in = (vmin + vmax) / 2
         print('new vin', v_in)
-    elif max(mach) < 1 and max(mach) > 0.99: 
+    elif max(mach) < 1 and max(mach) > 0.96: 
         break 
     else: 
         #print('wtf')
         vmin = v_in
         v_in = (vmin + vmax) / 2
+plt.semilogx(np.array(r_list)/5e+10, q_list)
+plt.title('qdot')
+plt.show()
 
 plt.semilogx(np.array(r_list)/5e+10, M_dot_list)
 plt.title('Mdot')
@@ -426,6 +444,10 @@ plt.show()
 plt.semilogx(np.array(r_list)/5e+10, max_mach)
 plt.ylim([0.01, 1])
 plt.title('Mach number')
+plt.show()
+
+plt.semilogx(np.array(r_list)/5e+10, S_list)
+plt.title('S')
 plt.show()
 
 plt.semilogx(np.array(r_list)/5e+10, np.array(v_list) )
