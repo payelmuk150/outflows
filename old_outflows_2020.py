@@ -110,8 +110,12 @@ def initial_T(T, Ye, eta, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=
 #vmax = 6.8e+6
 
 #vmin = 4.974121e+6
-vmin = 4.9e+6
-vmax = 5.0e+6
+#vmin = 4.9e+6
+#vmax = 5.0e+6
+
+vmin = 5.2e+6
+#vmin = 5.407031e+6 
+vmax = 5.5e+6
 
 v_in = vmin
 
@@ -240,6 +244,7 @@ while True:
     density8 = (T**3.0 / S) * A / 1.055
     # gm_to_MeV = 5.6095e+26, cm^-1 to MeV = 1.98e-11. Taken from Saha conversion table: https://www.saha.ac.in/theory/palashbaran.pal/conv.html
     rho_MeV = density8 * 1e+8 * 5.6095e+26 * (1.98e-11)**3.0
+    rho = rho_MeV / (5.6095e+26 * (1.98e-11)**3.0)
 
     # loop over for radii
     for p in range (60000):
@@ -281,7 +286,7 @@ while True:
 
                 dv = ((2 * vs**2 / r) - (GM / r**2) - (qdot * beta / v)) * dr_nat / (v - (vs * vs / v))
                 dS = (qdot * m_n / (T * v)) * dr_nat
-                drho_MeV = - ( (2 * r * rho_MeV * v * dr_nat) + (r**2 * rho_MeV * dv) ) / (r**2 * v)
+                drho_MeV = - ((2 * r * rho_MeV * v * dr_nat) + (r**2 * rho_MeV * dv)) / (r**2 * v)
 
                 S = S + dS
                 r = r + dr_nat
@@ -289,6 +294,7 @@ while True:
                 rho_MeV = rho_MeV + drho_MeV 
 
                 rho = rho_MeV / (5.6095e+26 * (1.98e-11)**3.0)
+                density8 = rho / 1e+8
 
                 T_guess = (rho * 1.055 * S / (A * 1e+8))**0.333333
                 T = sc.optimize.fsolve(solve_for_T, T_guess, args=(rho, S))[0]
