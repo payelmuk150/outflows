@@ -113,8 +113,11 @@ def initial_T(T, Ye, eta, L_nue=L_nue, e_nue=e_nue, L_nuebar=L_nuebar, e_nuebar=
 #vmin = 4.9e+6
 #vmax = 5.0e+6
 
-vmin = 5.2e+6
-#vmin = 5.407031e+6 
+#vmin = 5.2e+6
+#vmin = 5.407055e+6 
+#vmax = 5.5e+6
+
+vmin = 5.357500e+6
 vmax = 5.5e+6
 
 v_in = vmin
@@ -122,7 +125,7 @@ v_in = vmin
 mu = 0.511
 
 def fermion_func(x):
-    if x == 0:
+    """if x == 0:
         return 0
     try:
         # Prevent overflow in the exponential function
@@ -139,8 +142,8 @@ def fermion_func(x):
 
         return - (x * (2.0 * x * mu**2.0 * polylog2 + 6.0 * x**2.0 * mu * polylog3 + 6.0 * x**3.0 * polylog4) * 4.0 * 15.0 / (np.pi**4.0 * x**4.0))
     except OverflowError:
-        return float('inf')
-    #return 3.5
+        return float('inf')"""
+    return 3.5
 
 
 def solve_for_T(T, rho, S): 
@@ -231,6 +234,7 @@ while True:
 
     vs = ((T_in * S_in / (4.0 * m_n)) * (4.0 + (T_in * derivative_A_term)) / (3.0 + (T_in * derivative_A_term)))**0.5
     vs_list = [vs * 3e+10]
+    density8 = rho_start / 1e+8
     S_list = [S]
     print ('Initial sound speed (cm/s)', vs * 3e+10)
 
@@ -247,7 +251,7 @@ while True:
     rho = rho_MeV / (5.6095e+26 * (1.98e-11)**3.0)
 
     # loop over for radii
-    for p in range (60000):
+    for p in range (100000):
         #print(density8 * 1e+8)
         #print(rho_MeV)
         #break
